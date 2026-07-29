@@ -1,9 +1,28 @@
-const inputFiles = document.getElementById("file-input");
-const inputBorder = document.getElementById("border-input");
-const inputN = document.getElementById("n-input");
-const spanN = document.getElementById("n-value");
+const fileInput = document.getElementById("file-input");
+const borderInput = document.getElementById("border-input");
+const ratioInput = document.getElementById("ratio-input");
+const colorInput = document.getElementById("color-input");
+
+const sliceHorizontalsInput = document.GetElementById("slice-h-input");
+const nInput = document.getElementById("n-input");
+const nValue = document.getElementById("n-value");
+
 const processBtn = document.getElementById("process-btn");
 
+
+function readConfig(){
+	return {
+		targetRatio: ratioInput.value,
+		borderWidth: parseInt(borderInput.value),
+		borderColor: colorInput.value,
+		verticalMode: document.querySelector('input[name="v-mode"]:checked').value;
+		horizontalMode: document.querySelector('input[name="h-mode"]:checked').value;
+		horizontalSlice: sliceHorizontalsInput.value;
+		n: parseInt(nInput.value)
+	}
+}
+
+// Old code!!!
 const CANVAS_W = 1080
 const CANVAS_H = 1350
 
@@ -23,11 +42,11 @@ function createCanvas(w, h){
 function addBorderToImg(img, originalName, zip, onSlideDone) {
   const w = img.width;
   const h = img.height;
-  const b = parseInt(inputBorder.value);
+  const b = parseInt(borderInput.value);
 
   const imgRatio = w / h;
   const horizontal = imgRatio > 1;
-  const N = horizontal ? parseInt(inputN.value) : 1;
+  const N = horizontal ? parseInt(nInput.value) : 1;
 
   const canvasW = CANVAS_W;
   const totalW = N * canvasW;
