@@ -3,34 +3,33 @@ const borderInput = document.getElementById("border-input");
 const ratioInput = document.getElementById("ratio-input");
 const colorInput = document.getElementById("color-input");
 
-const sliceHorizontalsInput = document.GetElementById("slice-h-input");
+const sliceHorizontalsInput = document.getElementById("slice-h-input");
 const nInput = document.getElementById("n-input");
 const nValue = document.getElementById("n-value");
+
+const previewContainer = document.querySelector(".preview-container");
 
 const processBtn = document.getElementById("process-btn");
 
 
+let loadedImages = [];
+let currentCanvases = [];
+
+
+// Function to read the user's config
 function readConfig(){
 	return {
 		targetRatio: ratioInput.value,
 		borderWidth: parseInt(borderInput.value),
 		borderColor: colorInput.value,
-		verticalMode: document.querySelector('input[name="v-mode"]:checked').value;
-		horizontalMode: document.querySelector('input[name="h-mode"]:checked').value;
-		horizontalSlice: sliceHorizontalsInput.value;
+		verticalMode: document.querySelector('input[name="v-mode"]:checked').value,
+		horizontalMode: document.querySelector('input[name="h-mode"]:checked').value,
+		horizontalSlice: sliceHorizontalsInput.checked,
 		n: parseInt(nInput.value)
 	}
 }
 
-// Old code!!!
-const CANVAS_W = 1080
-const CANVAS_H = 1350
-
-const zip = new JSZip();
-let filesProcessed = 0;
-let totalFiles = 0;
-let loadedImages = [];
-
+// Function that creates a custom canvas
 function createCanvas(w, h){
 	const canvas = document.createElement("canvas");
 	canvas.width = w;
@@ -39,124 +38,104 @@ function createCanvas(w, h){
 	return canvas;
 }
 
-function addBorderToImg(img, originalName, zip, onSlideDone) {
-  const w = img.width;
-  const h = img.height;
-  const b = parseInt(borderInput.value);
+// Render function: scales the image to fit entirely onto the canvas
+function renderFit(img, canvasW, canvasH, b, borderColor, sliceInfo = null){
+	const w = img.width;
+  	const h = img.height;
 
-  const imgRatio = w / h;
-  const horizontal = imgRatio > 1;
-  const N = horizontal ? parseInt(nInput.value) : 1;
+  	const imgRatio = w / h;
 
-  const canvasW = CANVAS_W;
-  const totalW = N * canvasW;
-  const usableW = totalW - 2 * b;
-  const usableH = CANVAS_H - 2 * b;
-  const targetRatio = usableW / usableH;
+  	const usableW = canvasW - 2 * b;
+  	const usableH = canvasH - 2 * b;
+  	const targetRatio = usableW / usableH;
 
-  let cropW = w, cropH = h, cropX = 0, cropY = 0;
-  if (imgRatio > targetRatio) {
-    cropW = h * targetRatio;
-    cropX = (w - cropW) / 2;
-  } else {
-    cropH = w / targetRatio;
-    cropY = (h - cropH) / 2;
-  }
+  	let blitW = usableW, blitH = usableH, blitX = b, blitY = b;
 
-  const bigCanvas = createCanvas(usableW, usableH);
-  const bigCtx = bigCanvas.getContext("2d");
-  bigCtx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, usableW, usableH);
+  	if (imgRatio > targetRatio) {
+  	  	blitH = usableW / imgRatio;
+		blitY = b + (usableH - blitH) / 2;
+  	} else {
+  		blitW = usableH * imgRatio;
+		blitX = b + (usableW - blitW) / 2;
+  	}
 
-  for (let i = 0; i < N; i++) {
-    const canvas = createCanvas(canvasW, CANVAS_H);
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvasW, CANVAS_H);
+  	const canvas = createCanvas(canvasW, canvasH);
+ 	const ctx = canvas.getContext("2d");
 
-    const leftBorder = (i === 0) ? b : 0;
-    const rightBorder = (i === N - 1) ? b : 0;
-    const destW = canvasW - leftBorder - rightBorder;
-    const destX = leftBorder;
+	ctx.fillStyle = borderColor;
+	ctx.fillRect(0, 0, canvasW, canvasH);
 
-    const sliceStartInBig = i * canvasW - b;
-    const sx = Math.max(0, sliceStartInBig);
-
-    ctx.drawImage(
-      bigCanvas,
-      sx, 0, destW, usableH,
-      destX, b, destW, usableH
-    );
-
-    canvas.toBlob((blob) => {
-      const filename = `${originalName}_slide_${i + 1}.jpg`;
-      zip.file(filename, blob);
-      onSlideDone();
-    }, "image/jpeg", 0.95);
-  }
+	ctx.drawImage(
+      		img,
+      		0, 0, w, h,
+      		blitX, blitY, blitW, blitH
+    	);
+	
+	return canvas;
 }
 
-function checkIfDone() {
-  if (filesProcessed === totalFiles) {
-    zip.generateAsync({ type: "blob" }).then((content) => {
-      const url = URL.createObjectURL(content);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "output.zip";
-      a.click();
-    });
-  }
+// Function to processes correctly every image
+function processImage(img, name, config){
+	let canvases = [];
+	canvases.push(renderFit(img, 1080, 1350, 30, config.borderColor));
+	return canvases;
 }
 
-inputFiles.addEventListener("change", (e) => {
-  const files = e.target.files;
-  loadedImages = [];
+// Function that updates the preview elements
+function updatePreview() {
+  	const config = readConfig();
+  	currentCanvases = [];
 
-  const imgPromises = [];
-  for (const file of files) {
-    imgPromises.push(new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => resolve({ img, name: file.name.replace(/\.[^/.]+$/, "") });
-      img.src = URL.createObjectURL(file);
-    }));
-  }
+  	for (const { img, name } of loadedImages) {
+  		const canvases = processImage(img, name, config);
+    		canvases.forEach((canvas, i) => {
+      			currentCanvases.push({ name: `${name}_${i+1}`, canvas });
+    		});
+	}
 
-  Promise.all(imgPromises).then((results) => {
-    loadedImages = results;
-    processBtn.disabled = false;
-  });
+  	renderPreviewToDOM(currentCanvases);
+}
+
+// Function to populate the preview section with items
+function renderPreviewToDOM(items) {
+  	previewContainer.innerHTML = "";
+
+  	items.forEach(({ name, canvas }) => {
+    		const thumb = canvas.cloneNode ? canvas : canvas;
+   		previewContainer.appendChild(canvas);
+  	});
+}
+
+// On file input, load the images into the array
+fileInput.addEventListener("change", (e) => {
+  	const imgPromises = [...e.target.files].map(file => new Promise(resolve => {
+    		const img = new Image();
+    		img.onload = () => resolve({ img, name: file.name.replace(/\.[^/.]+$/, "") });
+    		img.src = URL.createObjectURL(file);
+  	}));
+
+ 	Promise.all(imgPromises).then(results => {
+    		loadedImages = results;
+    		updatePreview();
+  	});
 });
 
+// On "download" button press, zip the files
 processBtn.addEventListener("click", () => {
-  if (loadedImages.length === 0) return;
-
-  const zip = new JSZip();
-  let filesProcessed = 0;
-  const totalFiles = loadedImages.reduce((sum, { img }) => {
-  	const horizontal = img.width / img.height > 1;
-  	const n = horizontal ? parseInt(inputN.value) : 1;
-  	return sum + n;
-  }, 0);
-
-  function checkIfDone() {
-    if (filesProcessed === totalFiles) {
-      zip.generateAsync({ type: "blob" }).then((content) => {
-        const url = URL.createObjectURL(content);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "output.zip";
-        a.click();
-      });
-    }
-  }
-
-  loadedImages.forEach(({ img, name }) => {
-    addBorderToImg(img, name, zip, () => {
-      filesProcessed++;
-      checkIfDone();
-    });
-  });
-});
-
-inputN.addEventListener("input", (e) => {
-  spanN.textContent = e.target.value;
+  	const zip = new JSZip();
+  	let done = 0;
+  	currentCanvases.forEach(({ name, canvas }) => {
+  		canvas.toBlob(blob => {
+      			zip.file(`${name}.jpg`, blob);
+      			done++;
+      			if (done === currentCanvases.length) {
+       	 			zip.generateAsync({ type: "blob" }).then(content => {
+         	 			const a = document.createElement("a");
+          				a.href = URL.createObjectURL(content);
+          				a.download = "output.zip";
+          				a.click();
+        			});
+      			}
+    		}, "image/jpeg", 0.95);
+  	});
 });
