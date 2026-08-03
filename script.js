@@ -15,6 +15,15 @@ const processBtn = document.getElementById("process-btn");
 let loadedImages = [];
 let currentCanvases = [];
 
+const RATIO_PRESETS = {
+  	"4:5": { w: 1080, h: 1350 },
+  	"1:1": { w: 1080, h: 1080 },
+  	"3:4": { w: 810, h: 1080 },
+  	"4:3": { w: 1080, h: 810 },
+  	"9:16": { w: 1080, h: 1920 },
+  	"16:9": { w: 1920, h: 1080 },
+};
+
 
 // Function to read the user's config
 function readConfig(){
@@ -74,10 +83,87 @@ function renderFit(img, canvasW, canvasH, b, borderColor, sliceInfo = null){
 	return canvas;
 }
 
+// Render function: crops the image to fit the canvas leaving a uniform border around it
+function renderCover(img, canvasW, canvasH, b, borderColor, sliceInfo = null){
+	const w = img.width;
+  	const h = img.height;
+
+  	const imgRatio = w / h;
+
+  	const usableW = canvasW - 2 * b;
+  	const usableH = canvasH - 2 * b;
+  	const targetRatio = usableW / usableH;
+
+  	let cropW = w, cropH = h, cropX = 0, cropY = 0;
+
+  	if (imgRatio > targetRatio) {
+  	  	cropW = h * targetRatio;
+  	  	cropX = (w - cropW) / 2;
+  	} else {
+  	  	cropH = w / targetRatio;
+  		cropY = (h - cropH) / 2;
+  	}
+
+  	const canvas = createCanvas(canvasW, canvasH);
+  	const ctx = canvas.getContext("2d");
+
+	ctx.fillStyle = borderColor;
+	ctx.fillRect(0, 0, canvasW, canvasH);
+
+  	ctx.drawImage(
+		img, 
+		cropX, cropY, cropW, cropH,
+		b, b, usableW, usableH
+	);
+	
+	return canvas;
+}
+
+// Function to get canvas size according to output ratio
+function getCanvasDimensions(ratioKey, img = null) {
+  	if (ratioKey === "original" && img) {
+
+    		const w = 1080;
+    		const h = Math.round(w * (img.height / img.width));
+    		return { w, h };
+  	}
+	
+  	return RATIO_PRESETS[ratioKey]; // { w, h } già pronto
+}
+
 // Function to processes correctly every image
 function processImage(img, name, config){
+	const w = img.width;
+  	const h = img.height;
+
+  	const imgRatio = w / h;
+	const horizontal = imgRatio > 1;
+	
+	const { w: canvasW, h: canvasH } = getCanvasDimensions(config.targetRatio, img);
 	let canvases = [];
-	canvases.push(renderFit(img, 1080, 1350, 30, config.borderColor));
+
+	if(!horizontal){ // Vertical
+		switch(config.verticalMode){
+			case "fit":
+				canvases.push(renderFit(img, canvasW, canvasH, config.borderWidth, config.borderColor));
+				break;
+			case "cover":
+				canvases.push(renderCover(img, canvasW, canvasH, config.borderWidth, config.borderColor));
+				break;
+		}
+	} else if(!config.horizontalSlice){ // Horizontal, no slice
+		switch(config.horizontalMode){
+			case "fit":
+				canvases.push(renderFit(img, canvasW, canvasH, config.borderWidth, config.borderColor));
+				break;
+			case "cover":
+				canvases.push(renderCover(img, canvasW, canvasH, config.borderWidth, config.borderColor));
+				break;
+		}
+	} else { // Horizontal with slicing
+
+	}
+
 	return canvases;
 }
 
@@ -119,6 +205,9 @@ fileInput.addEventListener("change", (e) => {
     		updatePreview();
   	});
 });
+
+// On settings change, reload the preview
+
 
 // On "download" button press, zip the files
 processBtn.addEventListener("click", () => {
