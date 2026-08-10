@@ -1,4 +1,14 @@
-const fileInput = document.getElementById("file-input");
+const heroSection = document.querySelector(".hero-container");
+const appSection = document.querySelector(".app-section");
+
+const dropZone = document.getElementById("drop-zone");
+const heroUpload = document.getElementById("hero-upload");
+
+const fileInput = document.createElement("input");
+fileInput.type = "file";
+fileInput.multiple = true;
+fileInput.accept = "image/*";
+
 const borderInput = document.getElementById("border-input");
 const ratioInput = document.getElementById("ratio-input");
 const colorInput = document.getElementById("color-input");
@@ -23,6 +33,7 @@ const RATIO_PRESETS = {
 	"16:9": { w: 1920, h: 1080 },
 };
 
+appSection.style.display = 'none';
 
 // Function to read the user's config
 function readConfig() {
@@ -261,9 +272,9 @@ function renderPreviewToDOM(items) {
 	});
 }
 
-// On file input, load the images into the array
-fileInput.addEventListener("change", (e) => {
-	const imgPromises = [...e.target.files].map(file => new Promise(resolve => {
+// Function that handles the uploaded files
+function handleFiles(files) {
+	const imgPromises = [...files].map(file => new Promise(resolve => {
 		const img = new Image();
 		img.onload = () => resolve({ img, name: file.name.replace(/\.[^/.]+$/, "") });
 		img.src = URL.createObjectURL(file);
@@ -271,9 +282,49 @@ fileInput.addEventListener("change", (e) => {
 
 	Promise.all(imgPromises).then(results => {
 		loadedImages = results;
+		showAppSection();
 		updatePreview();
 	});
+}
+
+// On file input, load the images into the array
+fileInput.addEventListener("change", (e) => {
+	handleFiles(e.target.files);
 });
+
+// Open the file picker
+function openFilePicker() {
+	fileInput.value = ""; // Forces the "change" update
+	fileInput.click();
+}
+
+// Drop zone
+dropZone.addEventListener("dragover", (e) => {
+	e.preventDefault();
+	dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => {
+	dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", (e) => {
+	e.preventDefault();
+	dropZone.classList.remove("dragover");
+	const files = e.dataTransfer.files;
+	handleFiles(files);
+});
+
+// Hero upload
+heroUpload.addEventListener("click", () => {
+	openFilePicker();
+})
+
+// Function that hides everything and shows the settings
+function showAppSection() {
+	heroSection.style.display = 'none';
+	appSection.style.display = '';
+}
 
 // Change the label of the n slider
 nInput.addEventListener("input", (e) => {

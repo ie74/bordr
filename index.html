@@ -5,12 +5,13 @@
 	<meta charset="utf-8">
 
 	<!-- Title -->
-	<title>Image Border</title>
+	<title>Bordr - Frame it right. Every time. | ie74</title>
 
 	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap"
+	<link
+		href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
 		rel="stylesheet">
 
 	<!-- Icons -->
@@ -24,19 +25,24 @@
 	<div class="container">
 		<div class="topbar">
 			<a class="ie74-link" href="https:/ie74.github.io">ie74</a>
-			<h1 class="name">Bordr</h1>
+			<h1 class="app-name">Bordr</h1>
 		</div>
 
-		<div class="hero">
-			<h1 class="title">Frame it right. Every time.</h2>
-				<p class="desc">A browser-based tool for adding perfectly consistent white borders to your photos before
-					posting.</p>
+		<div class="hero-container">
+			<div class="hero">
+				<h1>Frame it right.<br>Every time.</h2>
+					<p>Add perfect borders to your photos before posting</p>
+			</div>
+
+			<div id="drop-zone">
+				<h1>Drag & Drop your photos here</h1>
+				<i class="bi bi-upload"></i>
+				<p>Or <a id="hero-upload" href="#">upload files</a> instead</p>
+			</div>
 		</div>
 
-		<div class="app">
+		<div class="app-section">
 			<fieldset>
-				<input type="file" id="file-input" multiple accept="image/*">
-
 				<input type="number" min="0" value="30" id="border-input">
 
 				<select id="ratio-input">
