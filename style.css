@@ -1,0 +1,35 @@
+/* CSS Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container{
+    height: 100dvh;
+    width: 60%;
+    margin: 0px auto;
+    padding: 0px 2rem;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.topbar{
+    display: flex;
+    justify-content: space-between;
+}
+
+.hero{
+    text-align: center;
+}
+
+.preview-item {
+    max-width: 150px;
+}
+
+footer{
+    height: 200px;
+    background-color: brown;
+}
