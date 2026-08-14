@@ -1,3 +1,4 @@
+const topbar = document.querySelector(".topbar");
 const heroSection = document.querySelector(".hero-container");
 const appSection = document.querySelector(".app-section");
 
@@ -324,6 +325,7 @@ heroUpload.addEventListener("click", () => {
 function showAppSection() {
 	heroSection.style.display = 'none';
 	appSection.style.display = '';
+	topbar.classList.add("app-variant");
 }
 
 // Change the label of the n slider

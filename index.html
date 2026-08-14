@@ -5,7 +5,7 @@
 	<meta charset="utf-8">
 
 	<!-- Title -->
-	<title>Bordr - Frame it right. Every time. | ie74</title>
+	<title>Bordr - Frame it right. Every time.</title>
 
 	<!-- Fonts -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,67 +22,91 @@
 </head>
 
 <body>
-	<div class="container">
-		<div class="topbar">
+	<div class="hero-bg"></div>
+
+	<div class="topbar">
+		<div class="topbar-container">
 			<a class="ie74-link" href="https:/ie74.github.io">ie74</a>
 			<h1 class="app-name">Bordr</h1>
 		</div>
+	</div>
 
-		<div class="hero-container">
-			<div class="hero">
-				<h1>Frame it right.<br>Every time.</h2>
-					<p>Add perfect borders to your photos before posting</p>
-			</div>
-
-			<div id="drop-zone">
-				<h1>Drag & Drop your photos here</h1>
-				<i class="bi bi-upload"></i>
-				<p>Or <a id="hero-upload" href="#">upload files</a> instead</p>
-			</div>
+	<div class="hero-container">
+		<div class="hero">
+			<h1>Frame it right.<br>Every time.</h2>
+				<p>Add perfect borders to your photos before posting</p>
 		</div>
 
-		<div class="app-section">
-			<fieldset>
-				<input type="number" min="0" value="30" id="border-input">
+		<div id="drop-zone">
+			<div class="drop-bg"></div>
+			<h1>Drag & Drop your photos here</h1>
+			<i class="bi bi-upload"></i>
+			<p>Or <a id="hero-upload" href="#">upload files</a> instead</p>
+		</div>
+	</div>
 
-				<select id="ratio-input">
-					<option value="4:5" selected>4:5</option>
-					<option value="1:1">1:1</option>
-					<option value="3:4">3:4</option>
-					<option value="4:3">4:3</option>
-					<option value="16:9">16:9</option>
-					<option value="9:16">9:16</option>
-					<option value="original">Original</option>
-				</select>
+	<div class="app-section">
+		<div class="app-container">
+			<div class="app-controls">
+				<div class="general-settings-container">
+					<fieldset>
+						<label>
+							<span>Border width</span>
+							<input type="number" min="0" value="30" id="border-input">
+						</label>
 
-				<input type="color" id="color-input" value="#ffffff">
-			</fieldset>
+						<label>
+							<span>Border color</span>
+							<input type="color" id="color-input" value="#ffffff">
+						</label>
 
-			<fieldset>
-				<legend>Vertical images</legend>
+						<label>
+							<span>Target ratio</span>
+							<select id="ratio-input">
+								<option value="4:5" selected>4:5</option>
+								<option value="1:1">1:1</option>
+								<option value="3:4">3:4</option>
+								<option value="4:3">4:3</option>
+								<option value="16:9">16:9</option>
+								<option value="9:16">9:16</option>
+								<option value="original">Original</option>
+							</select>
+						</label>
+					</fieldset>
 
-				<label><input type="radio" name="v-mode" value="fit" checked> Fit (fit the image in the target ratio, no
-					cropping)</label>
-				<label><input type="radio" name="v-mode" value="cover"> Cover (crop the image to have a uniform
-					border)</label>
-				<label><input type="radio" name="v-mode" value="add"> Add (ignore the target ratio, add a uniform border
-					around the original image)</label>
-			</fieldset>
+					<fieldset>
 
-			<fieldset>
-				<legend>Horizontal images</legend>
+						<label><input type="checkbox" id="slice-h-input">Split horizontals</label>
+						<input type="range" min="2" max="5" value="2" id="n-input">
+						<span id="n-value">2</span>
+					</fieldset>
+				</div>
 
-				<label><input type="radio" name="h-mode" value="fit" checked> Fit (fit the image in the target ratio, no
-					cropping)</label>
-				<label><input type="radio" name="h-mode" value="cover"> Cover (crop the image to have a uniform
-					border)</label>
-				<label><input type="radio" name="h-mode" value="add"> Add (ignore the target ratio, add a uniform border
-					around the original image)</label>
 
-				<label><input type="checkbox" id="slice-h-input">Split horizontals</label>
-				<input type="range" min="2" max="5" value="2" id="n-input">
-				<span id="n-value">2</span>
-			</fieldset>
+				<div class="image-modes-container">
+					<fieldset>
+						<legend>Vertical images</legend>
+
+						<label><input type="radio" name="v-mode" value="fit" checked> Fit <span>Fit the image in the
+								target ratio, no cropping</span></label>
+						<label><input type="radio" name="v-mode" value="cover"> Cover <span>Crop the image to have a
+								uniform border</span></label>
+						<label><input type="radio" name="v-mode" value="add"> Add <span>Ignore the target ratio, add a
+								uniform border around the original image</span></label>
+					</fieldset>
+
+					<fieldset>
+						<legend>Horizontal images</legend>
+
+						<label><input type="radio" name="h-mode" value="fit" checked> Fit <span>Fit the image in the
+								target ratio, no cropping</span></label>
+						<label><input type="radio" name="h-mode" value="cover"> Cover <span>Crop the image to have a
+								uniform border</span></label>
+						<label><input type="radio" name="h-mode" value="add"> Add <span>Ignore the target ratio, add a
+								uniform border around the original image</span></label>
+					</fieldset>
+				</div>
+			</div>
 
 			<div class="preview-container">
 			</div>
@@ -90,10 +114,6 @@
 			<button id="process-btn">Download</button>
 		</div>
 	</div>
-
-	<footer>
-
-	</footer>
 
 	<!-- ZIP library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
