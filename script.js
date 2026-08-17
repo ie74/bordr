@@ -333,11 +333,20 @@ nInput.addEventListener("input", (e) => {
 	nValue.textContent = e.target.value;
 });
 
+// Disable slider
+function updateSlider() {
+	nInput.disabled = !sliceHorizontalsInput.checked;
+}
+
+sliceHorizontalsInput.addEventListener("change", updateSlider);
+
 // Function to disable the slice functionality
 function updateSliceAvailability() {
 	const isAdd = document.querySelector('input[name="h-mode"]:checked').value === "add";
 	sliceHorizontalsInput.disabled = isAdd;
+	if (isAdd) sliceHorizontalsInput.checked = false;
 	nInput.disabled = isAdd;
+	updateSlider();
 }
 
 // On settings change, reload the preview

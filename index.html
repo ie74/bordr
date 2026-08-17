@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta charset="utf-8">
 
 	<!-- Title -->
@@ -75,10 +76,20 @@
 					</fieldset>
 
 					<fieldset>
+						<label id="slice-label">
+							<input type="checkbox" id="slice-h-input" checked>
+							<div>Split horizontals
+								<div class="desc">Slices the horizontal
+									pictures into the desired amount of vertical frames, to create a "seamless carousel"
+									effect
+								</div>
+							</div>
+						</label>
 
-						<label><input type="checkbox" id="slice-h-input">Split horizontals</label>
-						<input type="range" min="2" max="5" value="2" id="n-input">
-						<span id="n-value">2</span>
+						<div class="slider-container">
+							<input type="range" min="2" max="5" value="2" id="n-input">
+							<span class="desc">Number of slices: <span id="n-value">2</span></span>
+						</div>
 					</fieldset>
 				</div>
 
@@ -87,22 +98,28 @@
 					<fieldset>
 						<legend>Vertical images</legend>
 
-						<label><input type="radio" name="v-mode" value="fit" checked> Fit <span>Fit the image in the
+						<label><input type="radio" name="v-mode" value="fit" checked> Fit <span class="desc">Fit the
+								image in the
 								target ratio, no cropping</span></label>
-						<label><input type="radio" name="v-mode" value="cover"> Cover <span>Crop the image to have a
+						<label><input type="radio" name="v-mode" value="cover"> Cover <span class="desc">Crop the image
+								to have a
 								uniform border</span></label>
-						<label><input type="radio" name="v-mode" value="add"> Add <span>Ignore the target ratio, add a
+						<label><input type="radio" name="v-mode" value="add"> Add <span class="desc">Ignore the target
+								ratio, add a
 								uniform border around the original image</span></label>
 					</fieldset>
 
 					<fieldset>
 						<legend>Horizontal images</legend>
 
-						<label><input type="radio" name="h-mode" value="fit" checked> Fit <span>Fit the image in the
+						<label><input type="radio" name="h-mode" value="fit" checked> Fit <span class="desc">Fit the
+								image in the
 								target ratio, no cropping</span></label>
-						<label><input type="radio" name="h-mode" value="cover"> Cover <span>Crop the image to have a
+						<label><input type="radio" name="h-mode" value="cover"> Cover <span class="desc">Crop the image
+								to have a
 								uniform border</span></label>
-						<label><input type="radio" name="h-mode" value="add"> Add <span>Ignore the target ratio, add a
+						<label><input type="radio" name="h-mode" value="add"> Add <span class="desc">Ignore the target
+								ratio, add a
 								uniform border around the original image</span></label>
 					</fieldset>
 				</div>
@@ -114,6 +131,10 @@
 			<button id="process-btn">Download</button>
 		</div>
 	</div>
+
+	<footer>
+
+	</footer>
 
 	<!-- ZIP library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
