@@ -48,6 +48,7 @@ html {
     position: sticky;
     top: 0;
     left: 0;
+    z-index: 74;
 
     backdrop-filter: blur(10px);
 }
@@ -58,17 +59,13 @@ html {
 }
 
 .topbar-container {
-    width: 50rem;
+    width: 100%;
     height: 100%;
     margin: 0px auto;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.topbar.app-variant .topbar-container {
-    width: 100%;
 }
 
 .ie74-link {
@@ -183,12 +180,14 @@ html {
     }
 }
 
-#drop-zone h1 {
+#drop-zone h1,
+#mobile-upload h1 {
     pointer-events: none;
     color: var(--text-secondary);
 }
 
-#drop-zone i {
+#drop-zone i,
+#mobile-upload i {
     margin: 1rem 0px;
 
     font-size: 3rem;
@@ -208,6 +207,26 @@ html {
 
 #drop-zone a:hover {
     color: var(--text-secondary);
+}
+
+#mobile-upload {
+    width: 50rem;
+    max-width: 90%;
+    margin: 2rem;
+    padding: 3rem;
+
+    border-radius: 2rem;
+    backdrop-filter: blur(10px);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    box-shadow: 0px 0px 4.5rem 1.8rem rgba(255, 255, 255, 0.06) inset;
+    transition: transform 0.1s ease;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* ========== APP ========== */
@@ -530,7 +549,6 @@ input[type="radio"] {
     overflow-x: auto;
 
     display: flex;
-    justify-content: center;
     gap: 1rem;
 }
 
@@ -539,34 +557,41 @@ input[type="radio"] {
 }
 
 /* Download */
+.btn-container {
+    width: 100%;
+    padding-bottom: 2rem;
+
+    background-color: var(--gray-100);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 #process-btn {
     padding: 0.5rem 2rem;
 
-    background-color: var(--gray-100);
+    background-color: var(--purple);
     border-radius: 0.5rem;
-    border: 2px solid var(--purple);
     outline: none;
+    border: none;
     cursor: pointer;
     color: var(--text-primary);
     font-family: inherit;
 }
 
 #process-btn:hover {
-    background-color: var(--purple);
-}
-
-#process-btn:active {
     background-color: var(--purple-highlighted);
-    border: 2px solid var(--purple-highlighted);
-}
-
-/* ========== Footer ========== */
-footer {
-    height: 200px;
-    background-color: #000;
 }
 
 /* ========== Responsive ========== */
+/* Touch-friendly */
+@media (pointer: coarse) {
+    #drop-zone h1 {
+        content: 'Click ';
+    }
+}
+
 @media(max-width: 700px) {
 
     .general-settings-container,
@@ -574,8 +599,17 @@ footer {
         flex-direction: column;
     }
 
-    .topbar, .app-container{
+    .topbar,
+    .app-container {
         padding: 0px 1rem;
+    }
+
+    .btn-container {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+
+        padding: 0.75rem;
     }
 }
 

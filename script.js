@@ -4,6 +4,7 @@ const appSection = document.querySelector(".app-section");
 
 const dropZone = document.getElementById("drop-zone");
 const heroUpload = document.getElementById("hero-upload");
+const mobileUpload = document.getElementById("mobile-upload");
 
 const fileInput = document.createElement("input");
 fileInput.type = "file";
@@ -35,6 +36,7 @@ const RATIO_PRESETS = {
 };
 
 appSection.style.display = 'none';
+mobileUpload.style.display = 'none';
 
 // Function to read the user's config
 function readConfig() {
@@ -300,6 +302,17 @@ function openFilePicker() {
 }
 
 // Drop zone
+const isTouchPrimary = window.matchMedia("(pointer: coarse)").matches;
+
+if (isTouchPrimary) {
+	dropZone.style.display = 'none';
+	mobileUpload.style.display = '';
+}
+
+mobileUpload.addEventListener("click", () => {
+	openFilePicker();
+})
+
 dropZone.addEventListener("dragover", (e) => {
 	e.preventDefault();
 	dropZone.classList.add("dragover");
