@@ -2,144 +2,193 @@
 <html lang="en">
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta charset="utf-8">
-
-	<!-- Title -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Bordr - Frame it right. Every time.</title>
+	<meta name="description" content="Add perfect borders to your photos before posting. Free, open source, and private: your photos never leave your device.">
 
-	<!-- Fonts -->
+	<!-- PWA -->
+	<meta name="theme-color" content="#4c1d95">
+	<link rel="manifest" href="manifest.json">
+	<link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+	<!-- Fonts & icons -->
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link
-		href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&family=Raleway:ital,wght@0,100..900;1,100..900&family=Sora:wght@100..800&display=swap"
-		rel="stylesheet">
-
-	<!-- Icons -->
+	<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Raleway:wght@300;600&family=Sora:wght@300..700&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
 
-	<!-- CSS -->
 	<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-	<div class="hero-bg"></div>
-
-	<div class="topbar">
+	<header class="topbar">
 		<div class="topbar-container">
-			<a class="ie74-link" href="https:/ie74.github.io">ie74</a>
-			<h1 class="app-name">Bordr</h1>
+			<a class="ie74-link" href="https://ie74.github.io">ie74</a>
+			<span class="app-name">Bordr</span>
 		</div>
-	</div>
+	</header>
 
-	<div class="hero-container">
-		<div class="hero">
-			<h1>Frame it right.<br>Every time.</h2>
-				<p>Add perfect borders to your photos before posting</p>
+	<main>
+		<!-- ========== HOME ========== -->
+		<div id="home">
+			<section class="hero-container">
+				<div class="hero-bg"></div>
+				<div class="hero">
+					<h1>Frame it right.<br>Every time.</h1>
+					<p>Add perfect borders to your photos before posting</p>
+				</div>
+
+				<div id="drop-zone">
+					<div class="drop-bg"></div>
+					<h2>Drag &amp; drop your photos here</h2>
+					<i class="bi bi-upload"></i>
+					<p>Or <a id="hero-upload" href="#">upload files</a> instead</p>
+				</div>
+
+				<div id="mobile-upload" role="button" tabindex="0">
+					<h2>Tap to upload your photos</h2>
+					<i class="bi bi-upload"></i>
+				</div>
+
+				<a class="scroll-hint" href="#how-to">How it works <i class="bi bi-chevron-down"></i></a>
+			</section>
+
+			<section class="howto-section" id="how-to">
+				<div class="howto">
+				<h2>How it works</h2>
+				<p class="howto-intro">Three steps, no account, no waiting. Everything happens in your browser.</p>
+
+				<ol class="steps">
+					<li>
+						<h3>Upload</h3>
+						<p>Drop one photo or a whole batch. Vertical and horizontal photos are handled separately, so one batch can mix both.</p>
+					</li>
+					<li>
+						<h3>Adjust</h3>
+						<p>Pick a border width and color, then a target ratio (4:5 is the Instagram portrait standard). The preview updates every time you change something.</p>
+					</li>
+					<li>
+						<h3>Download</h3>
+						<p>You get a ZIP of high-quality JPEGs, one file per frame, named after the original photo.</p>
+					</li>
+				</ol>
+
+				<h3 class="howto-sub">Choosing a mode</h3>
+				<p class="howto-intro">Each orientation has its own mode. Border width and color are shared.</p>
+				<dl class="modes">
+					<div>
+						<dt>Fit</dt>
+						<dd>The whole photo is scaled to fit inside the target ratio. Nothing is cropped, but the border can be wider on two sides.</dd>
+					</div>
+					<div>
+						<dt>Cover</dt>
+						<dd>The photo is cropped from the center so the border is exactly the same on every side.</dd>
+					</div>
+					<div>
+						<dt>Add</dt>
+						<dd>The target ratio is ignored. The border is simply added around the original photo.</dd>
+					</div>
+				</dl>
+
+				<h3 class="howto-sub">Seamless carousels</h3>
+				<p class="howto-text">Turn on <em>Split horizontals</em> and a horizontal photo is cut into 2 to 5 frames. Post them as a carousel in order and they line up as one wide picture. The border wraps the whole panorama, so it stays continuous between slides. Splitting is not available in <em>Add</em> mode, because that mode has no target frame to divide.</p>
+
+				<h3 class="howto-sub">Install it</h3>
+				<p class="howto-text">Bordr is a PWA. Use <em>Install</em> in your browser's address bar, or <em>Add to Home Screen</em> on mobile, to launch it like a regular app.</p>
+				</div>
+			</section>
 		</div>
 
-		<div id="drop-zone">
-			<div class="drop-bg"></div>
-			<h1>Drag & Drop your photos here</h1>
-			<i class="bi bi-upload"></i>
-			<p>Or <a id="hero-upload" href="#">upload files</a> instead</p>
-		</div>
+		<!-- ========== APP ========== -->
+		<section class="app-section" hidden>
+			<div class="app-container">
+				<div class="app-controls">
+					<div class="general-settings-container">
+						<fieldset>
+							<label>
+								<span>Border width (px)</span>
+								<input type="number" min="0" value="30" id="border-input">
+							</label>
 
-		<div id="mobile-upload">
-			<h1>Click to upload your photos</h1>
-			<i class="bi bi-upload"></i>
-		</div>
-	</div>
+							<label>
+								<span>Border color</span>
+								<input type="color" id="color-input" value="#ffffff">
+							</label>
 
-	<div class="app-section">
-		<div class="app-container">
-			<div class="app-controls">
-				<div class="general-settings-container">
-					<fieldset>
-						<label>
-							<span>Border width</span>
-							<input type="number" min="0" value="30" id="border-input">
-						</label>
+							<label>
+								<span>Target ratio</span>
+								<select id="ratio-input">
+									<option value="4:5" selected>4:5</option>
+									<option value="1:1">1:1</option>
+									<option value="3:4">3:4</option>
+									<option value="4:3">4:3</option>
+									<option value="16:9">16:9</option>
+									<option value="9:16">9:16</option>
+									<option value="original">Original</option>
+								</select>
+							</label>
+						</fieldset>
 
-						<label>
-							<span>Border color</span>
-							<input type="color" id="color-input" value="#ffffff">
-						</label>
-
-						<label>
-							<span>Target ratio</span>
-							<select id="ratio-input">
-								<option value="4:5" selected>4:5</option>
-								<option value="1:1">1:1</option>
-								<option value="3:4">3:4</option>
-								<option value="4:3">4:3</option>
-								<option value="16:9">16:9</option>
-								<option value="9:16">9:16</option>
-								<option value="original">Original</option>
-							</select>
-						</label>
-					</fieldset>
-
-					<fieldset>
-						<label id="slice-label">
-							<input type="checkbox" id="slice-h-input" checked>
-							<div>Split horizontals
-								<div class="desc">Slices the horizontal
-									pictures into the desired amount of vertical frames, to create a "seamless carousel"
-									effect
+						<fieldset>
+							<label id="slice-label">
+								<input type="checkbox" id="slice-h-input" checked>
+								<div>Split horizontals
+									<div class="desc">Slices horizontal pictures into the chosen number of vertical frames, for a "seamless carousel" effect</div>
 								</div>
+							</label>
+
+							<div class="slider-container">
+								<input type="range" min="2" max="5" value="2" id="n-input">
+								<span class="desc">Number of slices: <span id="n-value">2</span></span>
 							</div>
-						</label>
+						</fieldset>
+					</div>
 
-						<div class="slider-container">
-							<input type="range" min="2" max="5" value="2" id="n-input">
-							<span class="desc">Number of slices: <span id="n-value">2</span></span>
-						</div>
-					</fieldset>
+					<div class="image-modes-container">
+						<fieldset>
+							<legend>Vertical images</legend>
+							<label><input type="radio" name="v-mode" value="fit" checked> Fit <span class="desc">Fit the image in the target ratio, no cropping</span></label>
+							<label><input type="radio" name="v-mode" value="cover"> Cover <span class="desc">Crop the image to have a uniform border</span></label>
+							<label><input type="radio" name="v-mode" value="add"> Add <span class="desc">Ignore the target ratio, add a uniform border around the original image</span></label>
+						</fieldset>
+
+						<fieldset>
+							<legend>Horizontal images</legend>
+							<label><input type="radio" name="h-mode" value="fit" checked> Fit <span class="desc">Fit the image in the target ratio, no cropping</span></label>
+							<label><input type="radio" name="h-mode" value="cover"> Cover <span class="desc">Crop the image to have a uniform border</span></label>
+							<label><input type="radio" name="h-mode" value="add"> Add <span class="desc">Ignore the target ratio, add a uniform border around the original image</span></label>
+						</fieldset>
+					</div>
 				</div>
 
+				<div class="preview-container"></div>
 
-				<div class="image-modes-container">
-					<fieldset>
-						<legend>Vertical images</legend>
-
-						<label><input type="radio" name="v-mode" value="fit" checked> Fit <span class="desc">Fit the
-								image in the
-								target ratio, no cropping</span></label>
-						<label><input type="radio" name="v-mode" value="cover"> Cover <span class="desc">Crop the image
-								to have a
-								uniform border</span></label>
-						<label><input type="radio" name="v-mode" value="add"> Add <span class="desc">Ignore the target
-								ratio, add a
-								uniform border around the original image</span></label>
-					</fieldset>
-
-					<fieldset>
-						<legend>Horizontal images</legend>
-
-						<label><input type="radio" name="h-mode" value="fit" checked> Fit <span class="desc">Fit the
-								image in the
-								target ratio, no cropping</span></label>
-						<label><input type="radio" name="h-mode" value="cover"> Cover <span class="desc">Crop the image
-								to have a
-								uniform border</span></label>
-						<label><input type="radio" name="h-mode" value="add"> Add <span class="desc">Ignore the target
-								ratio, add a
-								uniform border around the original image</span></label>
-					</fieldset>
+				<div class="btn-container">
+					<button type="button" id="process-btn"><i class="bi bi-download"></i> <span>Download ZIP</span></button>
 				</div>
 			</div>
+		</section>
+	</main>
 
-			<div class="preview-container">
-			</div>
-
-			<div class="btn-container">
-				<button id="process-btn">Download</button>
-			</div>
+	<footer class="footer">
+		<div class="footer-container">
+			<p class="footer-main">
+				<strong>Bordr</strong> is free and <a href="https://github.com/ie74/bordr" target="_blank" rel="noopener"><i class="bi bi-github"></i> open source on GitHub</a>.
+				Bug reports and contributions are welcome.
+			</p>
+			<p>
+				<strong>Privacy.</strong> Your photos are processed locally in your browser and are never uploaded to any server. Bordr sets no cookies and has no analytics.
+				Fonts and icons are loaded from Google Fonts and jsDelivr, which may log your IP address as with any web request.
+			</p>
+			<p>
+				<strong>Disclaimer.</strong> Provided "as is", without warranty of any kind. Always keep a copy of your original files.
+				Instagram is a trademark of Meta Platforms, Inc.; Bordr is not affiliated with or endorsed by Meta.
+			</p>
+			<p class="footer-copy">&copy; 2026 <a href="https://ie74.github.io">ie74</a>. Licensed under GPL-3.0.</p>
 		</div>
-	</div>
+	</footer>
 
-	<!-- ZIP library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 	<script src="script.js"></script>
 </body>

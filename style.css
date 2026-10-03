@@ -1,3 +1,4 @@
+/* ========== Tokens ========== */
 :root {
     --bg-base: #0a0a0f;
 
@@ -11,24 +12,62 @@
     --gray-100: #0f0f13;
     --gray-200: #19191e;
     --gray-300: #282830;
+
+    --radius-lg: 2rem;
+    --radius-md: 1rem;
+    --radius-sm: 0.5rem;
+
+    --glass-border: 2px dashed rgba(255, 255, 255, 0.2);
+    --glass-glow: 0 0 4.5rem 1.8rem rgba(255, 255, 255, 0.06) inset;
 }
 
-/* CSS Reset */
+/* ========== Reset & base ========== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 html {
     font-family: 'Sora', sans-serif;
     font-size: 16px;
     color: var(--text-primary);
+    scroll-behavior: smooth;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
-/* Background */
+html::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--bg-base);
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+a {
+    color: inherit;
+}
+
+:focus-visible {
+    outline: 2px solid var(--purple-highlighted);
+    outline-offset: 2px;
+}
+
+/* The grid lives inside the hero and scrolls away with it */
 .hero-bg {
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: -1;
     background-color: #000;
@@ -39,30 +78,25 @@ html {
     background-size: 6rem 6rem, 6rem 6rem, 100% 100%;
 }
 
-/* Topbar */
+/* ========== Topbar ========== */
 .topbar {
     width: 100%;
     height: 4rem;
-    padding: 0px 2rem;
-
+    padding: 0 2rem;
     position: sticky;
     top: 0;
-    left: 0;
     z-index: 74;
-
     backdrop-filter: blur(10px);
 }
 
 .topbar.app-variant {
     backdrop-filter: none;
     background-color: var(--gray-100);
+    border-bottom: 2px solid var(--gray-200);
 }
 
 .topbar-container {
-    width: 100%;
     height: 100%;
-    margin: 0px auto;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -73,7 +107,6 @@ html {
     font-size: 1.5rem;
     font-weight: 700;
     text-decoration: none;
-    color: var(--text-primary);
 }
 
 .app-name {
@@ -82,35 +115,46 @@ html {
     font-weight: 300;
 }
 
-/* ========== LANDING ========== */
-/* Hero */
+/* ========== Landing ========== */
 .hero-container {
-    width: 100%;
-    margin: 0px auto;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.hero {
-    padding: 4rem 2rem;
-
-    text-align: center;
-
+    position: relative;
+    isolation: isolate;
+    min-height: 100vh;
+    min-height: 100svh;
+    margin-top: -4rem; /* tuck under the sticky topbar so the grid starts at the very top */
+    padding: 4rem 0 4.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
+.scroll-hint {
+    position: absolute;
+    bottom: 1.25rem;
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.scroll-hint:hover {
+    color: var(--text-secondary);
+}
+
+.hero {
+    padding: 4rem 2rem 2rem;
+    text-align: center;
+}
+
 .hero h1 {
     margin-bottom: 1.5rem;
-
-    font-size: 5rem;
-    line-height: 5rem;
     font-family: 'Raleway', sans-serif;
+    font-size: 5rem;
+    line-height: 1.05;
 }
 
 .hero p {
@@ -118,78 +162,50 @@ html {
     color: var(--text-secondary);
 }
 
-/* Drop zone */
-#drop-zone {
+/* Upload zones (desktop drop zone + touch button share the same look) */
+#drop-zone,
+#mobile-upload {
+    position: relative;
     width: 50rem;
     max-width: 90%;
-    height: 20rem;
     margin: 2rem;
     padding: 3rem;
-
-    border-radius: 2rem;
+    border-radius: var(--radius-lg);
     backdrop-filter: blur(10px);
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    box-shadow: 0px 0px 4.5rem 1.8rem rgba(255, 255, 255, 0.06) inset;
+    border: var(--glass-border);
+    box-shadow: var(--glass-glow);
     transition: transform 0.1s ease;
-
     text-align: center;
-
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-
-    overflow: hidden;
 }
 
-#drop-zone.dragover {
-    transform: scale(1.03);
-    border: 2px solid rgba(255, 255, 255, 0.06);
-    box-shadow: 0px 0px 4.5rem 1.8rem rgba(255, 255, 255, 0.06) inset,
-        0px 0px 3rem 0.7rem rgba(255, 255, 255, 0.06);
+#drop-zone {
+    height: 20rem;
 }
 
-.drop-bg {
-    pointer-events: none;
+#mobile-upload {
+    display: none;
+    cursor: pointer;
 }
 
-#drop-zone.dragover .drop-bg {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-
-    left: -1.98rem;
-    z-index: -1;
-
-    background-image: repeating-linear-gradient(-45deg,
-            rgba(255, 255, 255, 0.06) 0 0.7rem,
-            transparent 0.7rem 1.4rem);
-
-    animation: stripes 2s linear infinite;
-
+#drop-zone > :not(.drop-bg) {
+    position: relative;
 }
 
-@keyframes stripes {
-    from {
-        transform: translateX(0);
-    }
-
-    to {
-        transform: translateX(1.98rem);
-    }
-}
-
-#drop-zone h1,
-#mobile-upload h1 {
+#drop-zone h2,
+#mobile-upload h2 {
+    font-weight: 400;
     pointer-events: none;
     color: var(--text-secondary);
 }
 
 #drop-zone i,
 #mobile-upload i {
-    margin: 1rem 0px;
-
+    margin: 1rem 0;
     font-size: 3rem;
     color: var(--text-secondary);
     pointer-events: none;
@@ -209,27 +225,132 @@ html {
     color: var(--text-secondary);
 }
 
-#mobile-upload {
-    width: 50rem;
-    max-width: 90%;
-    margin: 2rem;
-    padding: 3rem;
-
-    border-radius: 2rem;
-    backdrop-filter: blur(10px);
-    border: 2px dashed rgba(255, 255, 255, 0.2);
-    box-shadow: 0px 0px 4.5rem 1.8rem rgba(255, 255, 255, 0.06) inset;
-    transition: transform 0.1s ease;
-
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.drop-bg {
+    position: absolute;
+    inset: 0 0 0 -1.98rem;
+    opacity: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(-45deg,
+            rgba(255, 255, 255, 0.06) 0 0.7rem,
+            transparent 0.7rem 1.4rem);
 }
 
-/* ========== APP ========== */
+#drop-zone.dragover {
+    transform: scale(1.03);
+    border: 2px solid rgba(255, 255, 255, 0.06);
+    box-shadow: var(--glass-glow), 0 0 3rem 0.7rem rgba(255, 255, 255, 0.06);
+}
+
+#drop-zone.dragover .drop-bg {
+    opacity: 1;
+    animation: stripes 2s linear infinite;
+}
+
+@keyframes stripes {
+    to {
+        transform: translateX(1.98rem);
+    }
+}
+
+/* ========== How to ========== */
+.howto-section {
+    padding: 4.5rem 0 5.5rem;
+    background-color: var(--bg-base);
+}
+
+.howto {
+    width: 100%;
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.howto h2 {
+    margin-bottom: 0.5rem;
+    font-family: 'Raleway', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+}
+
+.howto-sub {
+    margin: 3rem 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.howto-intro,
+.howto-text,
+.howto li p,
+.modes dd {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    max-width: 65ch;
+}
+
+.howto em {
+    font-style: normal;
+    color: var(--text-primary);
+}
+
+.steps {
+    margin-top: 2rem;
+    padding-left: 0;
+    list-style: none;
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.steps li {
+    padding-left: 3.5rem;
+    position: relative;
+    counter-increment: step;
+}
+
+.steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background-color: var(--purple);
+    font-weight: 600;
+    display: grid;
+    place-content: center;
+}
+
+.steps h3 {
+    margin-bottom: 0.25rem;
+    font-size: 1.1rem;
+}
+
+.modes {
+    margin-top: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1rem;
+}
+
+.modes div {
+    padding: 1rem 1.25rem;
+    background-color: var(--gray-200);
+    border: 2px solid var(--gray-300);
+    border-radius: var(--radius-md);
+}
+
+.modes dt {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.modes dd {
+    font-size: 0.9rem;
+}
+
+/* ========== App ========== */
 .app-section {
     width: 100%;
     background-color: var(--gray-100);
@@ -237,26 +358,33 @@ html {
 
 .app-container {
     width: 55%;
-    height: 100%;
-    margin: 0px auto;
-    padding: 0px 2rem;
-
+    margin: 0 auto;
+    padding: 2rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     gap: 2rem;
 }
 
+.app-controls,
+.general-settings-container,
+.image-modes-container {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+}
+
+.app-controls {
+    flex-direction: column;
+    gap: 2rem;
+}
+
 fieldset {
-    height: 100%;
     width: 100%;
     padding: 1rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     border: 2px solid var(--gray-200);
-
     flex: 1;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -264,38 +392,8 @@ fieldset {
 }
 
 legend {
+    padding: 0 0.5rem;
     color: var(--text-secondary);
-}
-
-.image-modes-container label,
-#slice-label {
-    padding: 1rem;
-
-    background-color: var(--gray-200);
-    border-radius: 1rem;
-    border: 2px solid var(--gray-100);
-    cursor: pointer;
-
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.desc {
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-}
-
-/* ##### General settings ##### */
-.general-settings-container {
-    width: 100%;
-    margin-bottom: 1rem;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1rem;
 }
 
 .general-settings-container label {
@@ -304,119 +402,118 @@ legend {
     align-items: center;
 }
 
-#border-input {
+/* Shared look for the three general-settings controls */
+#border-input,
+#color-input,
+#ratio-input {
     width: 50%;
     padding: 0.25rem 0.5rem;
-
-    text-align: right;
-    font-size: 1rem;
+    font: inherit;
     color: var(--text-primary);
-    background-color: var(--gray-100);
+    background-color: var(--gray-200);
     border: 2px solid var(--gray-200);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     outline: none;
-    font-family: 'Sora', sans-serif;
 }
 
-#border-input:focus {
-    border: 2px solid var(--purple);
+#border-input {
+    text-align: right;
+    background-color: var(--gray-100);
+    appearance: textfield;
+    -moz-appearance: textfield;
 }
 
-/* Chrome, Safari */
 #border-input::-webkit-outer-spin-button,
 #border-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-/* Firefox */
-#border-input {
-    -moz-appearance: textfield;
-    appearance: textfield;
-}
-
 #color-input {
-    width: 50%;
     padding: 0.25rem;
-
     background-color: var(--gray-100);
-    border: 2px solid var(--gray-200);
-    border-radius: 1rem;
-    outline: none;
     cursor: pointer;
 }
 
-#color-input:focus {
-    border: 2px solid var(--purple);
-}
-
-/* Chrome, Safari */
 #color-input::-webkit-color-swatch-wrapper {
     padding: 0;
 }
 
-#color-input::-webkit-color-swatch {
-    border: none;
-    border-radius: 0.75rem;
-}
-
-/* Firefox */
+#color-input::-webkit-color-swatch,
 #color-input::-moz-color-swatch {
     border: none;
     border-radius: 0.75rem;
 }
 
 #ratio-input {
-    width: 50%;
-    padding: 0.25rem 0.5rem;
-    border: 2px solid var(--gray-200);
-    border-radius: 1rem;
-    font: inherit;
     text-align: right;
-
-    background-color: var(--gray-200);
-    color: var(--text-primary);
-    outline: none;
     cursor: pointer;
 }
 
+#border-input:focus,
+#color-input:focus,
 #ratio-input:focus {
     border-color: var(--purple);
 }
 
-#slice-label:has(#slice-h-input:disabled) {
-    cursor: not-allowed;
+/* Option cards (radio modes + split toggle) */
+.image-modes-container label,
+#slice-label {
+    padding: 1rem;
+    position: relative;
+    background-color: var(--gray-200);
+    border-radius: var(--radius-md);
+    border: 2px solid var(--gray-100);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
+.image-modes-container label:has(input:checked) {
+    border-color: var(--purple);
+}
+
+.image-modes-container label:has(input:focus-visible) {
+    outline: 2px solid var(--purple-highlighted);
+}
+
+input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.desc {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+/* Split checkbox */
 #slice-label div {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-#slice-h-input {
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: var(--gray-100);
-    margin: 0;
-
-    font: inherit;
-    color: var(--purple);
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 2px solid var(--gray-200);
-    border-radius: 0.5rem;
-    cursor: pointer;
-
-    flex-shrink: 0;
-
-    display: grid;
-    place-content: center;
+#slice-label:has(#slice-h-input:disabled) {
+    cursor: not-allowed;
 }
 
-#slice-h-input:disabled {
-    color: var(--text-muted);
-    cursor: not-allowed;
+#slice-h-input {
+    appearance: none;
+    -webkit-appearance: none;
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0;
+    background-color: var(--gray-100);
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: grid;
+    place-content: center;
 }
 
 #slice-h-input::before {
@@ -428,87 +525,29 @@ legend {
     box-shadow: inset 1em 1em var(--purple);
 }
 
+#slice-h-input:checked::before {
+    transform: scale(1);
+}
+
 #slice-h-input:hover::before {
     box-shadow: inset 1em 1em var(--purple-highlighted);
+}
+
+#slice-h-input:disabled {
+    cursor: not-allowed;
 }
 
 #slice-h-input:disabled::before {
     box-shadow: inset 1em 1em var(--text-muted);
 }
 
-#slice-h-input:checked::before {
-    transform: scale(1);
-}
-
+/* Slider */
 .slider-container {
     width: 100%;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
-}
-
-#n-input {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 50%;
-    height: 0.5rem;
-    background: var(--gray-200);
-    border-radius: 1rem;
-    outline: none;
-    cursor: pointer;
-}
-
-/* Thumb - Chrome, Safari */
-#n-input::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.5rem;
-    background: var(--purple);
-    cursor: pointer;
-}
-
-/* Thumb - Firefox */
-#n-input::-moz-range-thumb {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 0.5rem;
-    background: var(--purple);
-    border: none;
-    cursor: pointer;
-}
-
-#n-input::-webkit-slider-thumb:hover {
-    background-color: var(--purple-highlighted);
-}
-
-#n-input::-moz-range-thumb:hover {
-    background-color: var(--purple-highlighted);
-}
-
-/* Track - Firefox */
-#n-input::-moz-range-track {
-    background: var(--gray-200);
-    height: 0.5rem;
-    border-radius: 1rem;
-}
-
-/* Disabled */
-#n-input:disabled {
-    cursor: not-allowed;
-}
-
-#n-input:disabled::-webkit-slider-thumb {
-    background-color: var(--text-muted);
-    cursor: not-allowed;
-}
-
-#n-input:disabled::-moz-range-thumb {
-    background-color: var(--text-muted);
-    cursor: not-allowed;
 }
 
 .slider-container .desc {
@@ -522,103 +561,218 @@ legend {
     color: var(--text-primary);
 }
 
-/* ##### Image modes ##### */
-.image-modes-container {
-    width: 100%;
-
-    display: flex;
-    gap: 1rem;
+#n-input {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 50%;
+    height: 0.5rem;
+    background: var(--gray-200);
+    border-radius: var(--radius-md);
+    outline: none;
+    cursor: pointer;
 }
 
-input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    width: 0;
-    height: 0;
+#n-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--purple);
+    cursor: pointer;
 }
 
-.image-modes-container label:has(input[type="radio"]:checked) {
-    border: 2px solid var(--purple);
+#n-input::-moz-range-thumb {
+    width: 1rem;
+    height: 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--purple);
+    cursor: pointer;
 }
 
-/* Preview */
+#n-input::-moz-range-track {
+    height: 0.5rem;
+    background: var(--gray-200);
+    border-radius: var(--radius-md);
+}
+
+#n-input::-webkit-slider-thumb:hover,
+#n-input::-moz-range-thumb:hover {
+    background-color: var(--purple-highlighted);
+}
+
+#n-input:disabled {
+    cursor: not-allowed;
+}
+
+#n-input:disabled::-webkit-slider-thumb,
+#n-input:disabled::-moz-range-thumb {
+    background-color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* ========== Preview ========== */
+/* Fix: min-width:0 lets the flex child scroll instead of stretching its parent,
+   and flex:none stops the canvases from shrinking (which squashed them). */
 .preview-container {
     width: 100%;
+    min-width: 0;
     height: 25rem;
-
+    padding-bottom: 0.5rem;
     overflow-x: auto;
-
+    overflow-y: hidden;
     display: flex;
     gap: 1rem;
+    scrollbar-color: var(--gray-300) transparent;
 }
 
 .preview-item {
+    flex: none;
     height: 100%;
+    width: auto;
+    border-radius: 0.25rem;
 }
 
-/* Download */
+/* ========== Download ========== */
 .btn-container {
     width: 100%;
-    padding-bottom: 2rem;
-
-    background-color: var(--gray-100);
-
     display: flex;
-    align-items: center;
     justify-content: center;
 }
 
 #process-btn {
-    padding: 0.5rem 2rem;
-
-    background-color: var(--purple);
-    border-radius: 0.5rem;
-    outline: none;
-    border: none;
-    cursor: pointer;
+    padding: 0.9rem 2.5rem;
+    font: inherit;
+    font-weight: 600;
     color: var(--text-primary);
-    font-family: inherit;
+    background: linear-gradient(135deg, var(--purple-highlighted), var(--purple));
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 0.5rem 1.5rem rgba(124, 58, 237, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 #process-btn:hover {
-    background-color: var(--purple-highlighted);
+    transform: translateY(-2px);
+    box-shadow: 0 0.75rem 2rem rgba(124, 58, 237, 0.5);
+}
+
+#process-btn:active {
+    transform: translateY(0);
+}
+
+#process-btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+    transform: none;
+}
+
+/* ========== Footer ========== */
+.footer {
+    padding: 2.5rem 2rem;
+    background-color: var(--gray-100);
+    border-top: 2px solid var(--gray-200);
+}
+
+.footer-container {
+    max-width: 52rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.footer strong {
+    color: var(--text-secondary);
+}
+
+.footer a {
+    color: var(--text-secondary);
+}
+
+.footer a:hover {
+    color: var(--text-primary);
+}
+
+.footer-main {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.footer-copy {
+    margin-top: 0.5rem;
 }
 
 /* ========== Responsive ========== */
-/* Touch-friendly */
 @media (pointer: coarse) {
-    #drop-zone h1 {
-        content: 'Click ';
+    #drop-zone {
+        display: none;
+    }
+
+    #mobile-upload {
+        display: flex;
     }
 }
 
-@media(max-width: 700px) {
+@media (max-width: 1200px) {
+    .app-container {
+        width: 100%;
+    }
+}
+
+@media (max-width: 700px) {
+    .topbar,
+    .app-container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+
+    .hero p {
+        font-size: 1.1rem;
+    }
 
     .general-settings-container,
     .image-modes-container {
         flex-direction: column;
     }
 
-    .topbar,
+    .howto {
+        padding: 0 1rem;
+    }
+
+    /* Sticky download bar, with room reserved so it never covers the content */
     .app-container {
-        padding: 0px 1rem;
+        padding-bottom: 6rem;
     }
 
     .btn-container {
         position: fixed;
         bottom: 0;
         left: 0;
-
         padding: 0.75rem;
+        background-color: var(--gray-100);
+        border-top: 2px solid var(--gray-200);
+        z-index: 10;
     }
 }
 
-@media(max-width: 1200px) {
-    .topbar-container {
-        width: 100%;
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
     }
 
-    .app-container {
-        width: 100%;
+    #drop-zone.dragover .drop-bg {
+        animation: none;
     }
 }

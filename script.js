@@ -1,28 +1,29 @@
-const topbar = document.querySelector(".topbar");
-const heroSection = document.querySelector(".hero-container");
-const appSection = document.querySelector(".app-section");
+// ========== DOM ==========
+const $ = (id) => document.getElementById(id);
 
-const dropZone = document.getElementById("drop-zone");
-const heroUpload = document.getElementById("hero-upload");
-const mobileUpload = document.getElementById("mobile-upload");
+const topbar = document.querySelector(".topbar");
+const home = $("home");
+const appSection = document.querySelector(".app-section");
+const previewContainer = document.querySelector(".preview-container");
+
+const dropZone = $("drop-zone");
+const heroUpload = $("hero-upload");
+const mobileUpload = $("mobile-upload");
+
+const borderInput = $("border-input");
+const ratioInput = $("ratio-input");
+const colorInput = $("color-input");
+const sliceHorizontalsInput = $("slice-h-input");
+const nInput = $("n-input");
+const nValue = $("n-value");
+const processBtn = $("process-btn");
 
 const fileInput = document.createElement("input");
 fileInput.type = "file";
 fileInput.multiple = true;
 fileInput.accept = "image/*";
 
-const borderInput = document.getElementById("border-input");
-const ratioInput = document.getElementById("ratio-input");
-const colorInput = document.getElementById("color-input");
-
-const sliceHorizontalsInput = document.getElementById("slice-h-input");
-const nInput = document.getElementById("n-input");
-const nValue = document.getElementById("n-value");
-
-const previewContainer = document.querySelector(".preview-container");
-
-const processBtn = document.getElementById("process-btn");
-
+// ========== State ==========
 let loadedImages = [];
 let currentCanvases = [];
 
@@ -35,10 +36,7 @@ const RATIO_PRESETS = {
 	"16:9": { w: 1920, h: 1080 },
 };
 
-appSection.style.display = 'none';
-mobileUpload.style.display = 'none';
-
-// Function to read the user's config
+// ========== Config ==========
 function readConfig() {
 	return {
 		targetRatio: ratioInput.value,
@@ -47,33 +45,40 @@ function readConfig() {
 		verticalMode: document.querySelector('input[name="v-mode"]:checked').value,
 		horizontalMode: document.querySelector('input[name="h-mode"]:checked').value,
 		horizontalSlice: sliceHorizontalsInput.checked,
-		n: parseInt(nInput.value)
-	}
+		n: parseInt(nInput.value),
+	};
 }
 
-// Function that creates a custom canvas
-function createCanvas(w, h) {
+function getCanvasDimensions(ratioKey, img) {
+	if (ratioKey === "original") {
+		const w = 1080;
+		return { w, h: Math.round(w * (img.height / img.width)) };
+	}
+	return RATIO_PRESETS[ratioKey];
+}
+
+// ========== Rendering ==========
+function createCanvas(w, h, fill) {
 	const canvas = document.createElement("canvas");
 	canvas.width = w;
 	canvas.height = h;
 
-	return canvas;
+	const ctx = canvas.getContext("2d");
+	ctx.fillStyle = fill;
+	ctx.fillRect(0, 0, w, h);
+
+	return { canvas, ctx };
 }
 
-// Render function: scales the image to fit entirely onto the canvas
-function renderFit(img, canvasW, canvasH, b, borderColor, sliceInfo = null) {
-	const w = img.width;
-	const h = img.height;
-
-	const imgRatio = w / h;
-
+// Scales the image to fit entirely inside the canvas (no crop, borders may be asymmetric)
+function renderFit(img, canvasW, canvasH, b, borderColor) {
 	const usableW = canvasW - 2 * b;
 	const usableH = canvasH - 2 * b;
-	const targetRatio = usableW / usableH;
+	const imgRatio = img.width / img.height;
 
 	let blitW = usableW, blitH = usableH, blitX = b, blitY = b;
 
-	if (imgRatio > targetRatio) {
+	if (imgRatio > usableW / usableH) {
 		blitH = usableW / imgRatio;
 		blitY = b + (usableH - blitH) / 2;
 	} else {
@@ -81,35 +86,23 @@ function renderFit(img, canvasW, canvasH, b, borderColor, sliceInfo = null) {
 		blitX = b + (usableW - blitW) / 2;
 	}
 
-	const canvas = createCanvas(canvasW, canvasH);
-	const ctx = canvas.getContext("2d");
-
-	ctx.fillStyle = borderColor;
-	ctx.fillRect(0, 0, canvasW, canvasH);
-
-	ctx.drawImage(
-		img,
-		0, 0, w, h,
-		blitX, blitY, blitW, blitH
-	);
+	const { canvas, ctx } = createCanvas(canvasW, canvasH, borderColor);
+	ctx.drawImage(img, 0, 0, img.width, img.height, blitX, blitY, blitW, blitH);
 
 	return canvas;
 }
 
-// Render function: crops the image to fit the canvas leaving a uniform border around it
-function renderCover(img, canvasW, canvasH, b, borderColor, sliceInfo = null) {
+// Crops the image to fill the canvas, leaving a uniform border
+function renderCover(img, canvasW, canvasH, b, borderColor) {
 	const w = img.width;
 	const h = img.height;
-
-	const imgRatio = w / h;
-
 	const usableW = canvasW - 2 * b;
 	const usableH = canvasH - 2 * b;
 	const targetRatio = usableW / usableH;
 
 	let cropW = w, cropH = h, cropX = 0, cropY = 0;
 
-	if (imgRatio > targetRatio) {
+	if (w / h > targetRatio) {
 		cropW = h * targetRatio;
 		cropX = (w - cropW) / 2;
 	} else {
@@ -117,243 +110,140 @@ function renderCover(img, canvasW, canvasH, b, borderColor, sliceInfo = null) {
 		cropY = (h - cropH) / 2;
 	}
 
-	const canvas = createCanvas(canvasW, canvasH);
-	const ctx = canvas.getContext("2d");
-
-	ctx.fillStyle = borderColor;
-	ctx.fillRect(0, 0, canvasW, canvasH);
-
-	ctx.drawImage(
-		img,
-		cropX, cropY, cropW, cropH,
-		b, b, usableW, usableH
-	);
+	const { canvas, ctx } = createCanvas(canvasW, canvasH, borderColor);
+	ctx.drawImage(img, cropX, cropY, cropW, cropH, b, b, usableW, usableH);
 
 	return canvas;
 }
 
-// Render function: adds a simple border around the image
-function renderAdd(img, b, borderColor, sliceInfo = null) {
-	const w = img.width;
-	const h = img.height;
-
-	const canvasW = w + 2 * b;
-	const canvasH = h + 2 * b;
-
-	const canvas = createCanvas(canvasW, canvasH);
-	const ctx = canvas.getContext("2d");
-
-	ctx.fillStyle = borderColor;
-	ctx.fillRect(0, 0, canvasW, canvasH);
-
-	ctx.drawImage(
-		img,
-		0, 0, w, h,
-		b, b, w, h
-	);
+// Adds a plain border around the original image, ignoring the target ratio
+function renderAdd(img, b, borderColor) {
+	const { canvas, ctx } = createCanvas(img.width + 2 * b, img.height + 2 * b, borderColor);
+	ctx.drawImage(img, b, b);
 
 	return canvas;
 }
 
-// Render function: splits a horizontal image across N canvases with a shared border
+const RENDERERS = { fit: renderFit, cover: renderCover };
+
+// Splits one wide render across N canvases that share a continuous border
 function renderSplit(img, canvasW, canvasH, n, mode, b, borderColor) {
-	const totalW = n * canvasW;
-
-	let bigCanvas;
-	if (mode === "fit") {
-		bigCanvas = renderFit(img, totalW, canvasH, b, borderColor);
-	} else if (mode === "cover") {
-		bigCanvas = renderCover(img, totalW, canvasH, b, borderColor);
-	}
-
+	const bigCanvas = RENDERERS[mode](img, n * canvasW, canvasH, b, borderColor);
 	const canvases = [];
+
 	for (let i = 0; i < n; i++) {
-		const canvas = createCanvas(canvasW, canvasH);
-		const ctx = canvas.getContext("2d");
-
-		ctx.fillStyle = borderColor;
-		ctx.fillRect(0, 0, canvasW, canvasH);
-
-		const hasLeftBorder = i === 0;
-		const hasRightBorder = i === n - 1;
-
-		const sx = i * canvasW;
-		const sliceW = canvasW;
-
-		const destX = 0;
-		const destW = canvasW;
-
-		ctx.drawImage(
-			bigCanvas,
-			sx, 0, sliceW, canvasH,
-			destX, 0, destW, canvasH
-		);
-
+		const { canvas, ctx } = createCanvas(canvasW, canvasH, borderColor);
+		ctx.drawImage(bigCanvas, i * canvasW, 0, canvasW, canvasH, 0, 0, canvasW, canvasH);
 		canvases.push(canvas);
 	}
 
 	return canvases;
 }
 
-// Function to get canvas size according to output ratio
-function getCanvasDimensions(ratioKey, img = null) {
-	if (ratioKey === "original" && img) {
-
-		const w = 1080;
-		const h = Math.round(w * (img.height / img.width));
-		return { w, h };
-	}
-
-	return RATIO_PRESETS[ratioKey]; // { w, h } già pronto
+function renderSingle(img, mode, canvasW, canvasH, config) {
+	if (mode === "add") return renderAdd(img, config.borderWidth, config.borderColor);
+	return RENDERERS[mode](img, canvasW, canvasH, config.borderWidth, config.borderColor);
 }
 
-// Function to processes correctly every image
-function processImage(img, name, config) {
-	const w = img.width;
-	const h = img.height;
-
-	const imgRatio = w / h;
-	const horizontal = imgRatio > 1;
-
+function processImage(img, config) {
+	const horizontal = img.width > img.height;
 	const { w: canvasW, h: canvasH } = getCanvasDimensions(config.targetRatio, img);
-	let canvases = [];
 
-	if (!horizontal) { // Vertical
-		switch (config.verticalMode) {
-			case "fit":
-				canvases.push(renderFit(img, canvasW, canvasH, config.borderWidth, config.borderColor));
-				break;
-			case "cover":
-				canvases.push(renderCover(img, canvasW, canvasH, config.borderWidth, config.borderColor));
-				break;
-			case "add":
-				canvases.push(renderAdd(img, config.borderWidth, config.borderColor));
-				break;
-		}
-	} else if (!config.horizontalSlice) { // Horizontal, no slice
-		switch (config.horizontalMode) {
-			case "fit":
-				canvases.push(renderFit(img, canvasW, canvasH, config.borderWidth, config.borderColor));
-				break;
-			case "cover":
-				canvases.push(renderCover(img, canvasW, canvasH, config.borderWidth, config.borderColor));
-				break;
-			case "add":
-				canvases.push(renderAdd(img, config.borderWidth, config.borderColor));
-				break;
-		}
-	} else { // Horizontal with slicing
-		canvases = renderSplit(img, canvasW, canvasH, config.n, config.horizontalMode, config.borderWidth, config.borderColor);
+	if (horizontal && config.horizontalSlice) {
+		return renderSplit(img, canvasW, canvasH, config.n, config.horizontalMode, config.borderWidth, config.borderColor);
 	}
 
-	return canvases;
+	const mode = horizontal ? config.horizontalMode : config.verticalMode;
+	return [renderSingle(img, mode, canvasW, canvasH, config)];
 }
 
-// Function that updates the preview elements
+// ========== Preview ==========
 function updatePreview() {
 	const config = readConfig();
 	currentCanvases = [];
 
 	for (const { img, name } of loadedImages) {
-		const canvases = processImage(img, name, config);
-		canvases.forEach((canvas, i) => {
+		processImage(img, config).forEach((canvas, i) => {
+			canvas.classList.add("preview-item");
 			currentCanvases.push({ name: `${name}_${i + 1}`, canvas });
 		});
 	}
 
-	renderPreviewToDOM(currentCanvases);
+	previewContainer.replaceChildren(...currentCanvases.map(({ canvas }) => canvas));
 }
 
-// Function to populate the preview section with items
-function renderPreviewToDOM(items) {
-	previewContainer.innerHTML = "";
-
-	items.forEach(({ name, canvas }) => {
-		const thumb = canvas.cloneNode ? canvas : canvas;
-		canvas.classList.add("preview-item");
-		previewContainer.appendChild(canvas);
-	});
-}
-
-// Function that handles the uploaded files
+// ========== Upload ==========
 function handleFiles(files) {
-	const imgPromises = [...files].map(file => new Promise(resolve => {
-		const img = new Image();
-		img.onload = () => resolve({ img, name: file.name.replace(/\.[^/.]+$/, "") });
-		img.src = URL.createObjectURL(file);
-	}));
+	const imgPromises = [...files]
+		.filter((file) => file.type.startsWith("image/"))
+		.map((file) => new Promise((resolve) => {
+			const img = new Image();
+			const url = URL.createObjectURL(file);
+			img.onload = () => {
+				URL.revokeObjectURL(url);
+				resolve({ img, name: file.name.replace(/\.[^/.]+$/, "") });
+			};
+			img.onerror = () => {
+				URL.revokeObjectURL(url);
+				resolve(null);
+			};
+			img.src = url;
+		}));
 
-	Promise.all(imgPromises).then(results => {
-		loadedImages = results;
+	Promise.all(imgPromises).then((results) => {
+		loadedImages = results.filter(Boolean);
+		if (!loadedImages.length) return;
 		showAppSection();
 		updatePreview();
 	});
 }
 
-// On file input, load the images into the array
-fileInput.addEventListener("change", (e) => {
-	handleFiles(e.target.files);
-});
-
-// Open the file picker
 function openFilePicker() {
-	fileInput.value = ""; // Forces the "change" update
+	fileInput.value = ""; // Forces the "change" event even for the same files
 	fileInput.click();
 }
 
-// Drop zone
-const isTouchPrimary = window.matchMedia("(pointer: coarse)").matches;
-
-if (isTouchPrimary) {
-	dropZone.style.display = 'none';
-	mobileUpload.style.display = '';
+function showAppSection() {
+	home.hidden = true;
+	appSection.hidden = false;
+	topbar.classList.add("app-variant");
+	window.scrollTo({ top: 0, behavior: "instant" });
 }
 
-mobileUpload.addEventListener("click", () => {
+fileInput.addEventListener("change", (e) => handleFiles(e.target.files));
+
+heroUpload.addEventListener("click", (e) => {
+	e.preventDefault();
 	openFilePicker();
-})
+});
+
+mobileUpload.addEventListener("click", openFilePicker);
+mobileUpload.addEventListener("keydown", (e) => {
+	if (e.key === "Enter" || e.key === " ") {
+		e.preventDefault();
+		openFilePicker();
+	}
+});
 
 dropZone.addEventListener("dragover", (e) => {
 	e.preventDefault();
 	dropZone.classList.add("dragover");
 });
 
-dropZone.addEventListener("dragleave", () => {
-	dropZone.classList.remove("dragover");
-});
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
 
 dropZone.addEventListener("drop", (e) => {
 	e.preventDefault();
 	dropZone.classList.remove("dragover");
-	const files = e.dataTransfer.files;
-	handleFiles(files);
+	handleFiles(e.dataTransfer.files);
 });
 
-// Hero upload
-heroUpload.addEventListener("click", () => {
-	openFilePicker();
-})
-
-// Function that hides everything and shows the settings
-function showAppSection() {
-	heroSection.style.display = 'none';
-	appSection.style.display = '';
-	topbar.classList.add("app-variant");
-}
-
-// Change the label of the n slider
-nInput.addEventListener("input", (e) => {
-	nValue.textContent = e.target.value;
-});
-
-// Disable slider
+// ========== Settings ==========
 function updateSlider() {
 	nInput.disabled = !sliceHorizontalsInput.checked;
 }
 
-sliceHorizontalsInput.addEventListener("change", updateSlider);
-
-// Function to disable the slice functionality
+// Slicing makes no sense in "add" mode (no target frame to divide)
 function updateSliceAvailability() {
 	const isAdd = document.querySelector('input[name="h-mode"]:checked').value === "add";
 	sliceHorizontalsInput.disabled = isAdd;
@@ -362,34 +252,52 @@ function updateSliceAvailability() {
 	updateSlider();
 }
 
-// On settings change, reload the preview
+nInput.addEventListener("input", (e) => {
+	nValue.textContent = e.target.value;
+});
+
+sliceHorizontalsInput.addEventListener("change", updateSlider);
+
 [sliceHorizontalsInput, nInput, colorInput, ratioInput, borderInput].forEach((input) => {
 	input.addEventListener("change", updatePreview);
 });
 
-document.querySelectorAll('input[name="v-mode"], input[name="h-mode"]').forEach(input => {
+document.querySelectorAll('input[name="v-mode"], input[name="h-mode"]').forEach((input) => {
 	input.addEventListener("change", () => {
 		updatePreview();
 		updateSliceAvailability();
 	});
 });
 
-// On "download" button press, zip the files
-processBtn.addEventListener("click", () => {
-	const zip = new JSZip();
-	let done = 0;
-	currentCanvases.forEach(({ name, canvas }) => {
-		canvas.toBlob(blob => {
-			zip.file(`${name}.jpg`, blob);
-			done++;
-			if (done === currentCanvases.length) {
-				zip.generateAsync({ type: "blob" }).then(content => {
-					const a = document.createElement("a");
-					a.href = URL.createObjectURL(content);
-					a.download = "output.zip";
-					a.click();
-				});
-			}
-		}, "image/jpeg", 0.95);
-	});
+// ========== Download ==========
+const canvasToBlob = (canvas) => new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.95));
+
+processBtn.addEventListener("click", async () => {
+	if (!currentCanvases.length) return;
+
+	const label = processBtn.querySelector("span");
+	processBtn.disabled = true;
+	label.textContent = "Preparing...";
+
+	try {
+		const zip = new JSZip();
+		const blobs = await Promise.all(currentCanvases.map(({ canvas }) => canvasToBlob(canvas)));
+		currentCanvases.forEach(({ name }, i) => zip.file(`${name}.jpg`, blobs[i]));
+
+		const content = await zip.generateAsync({ type: "blob" });
+		const url = URL.createObjectURL(content);
+		const a = document.createElement("a");
+		a.href = url;
+		a.download = "output.zip";
+		a.click();
+		setTimeout(() => URL.revokeObjectURL(url), 1000);
+	} finally {
+		processBtn.disabled = false;
+		label.textContent = "Download ZIP";
+	}
 });
+
+// ========== PWA ==========
+if ("serviceWorker" in navigator) {
+	window.addEventListener("load", () => navigator.serviceWorker.register("sw.js"));
+}

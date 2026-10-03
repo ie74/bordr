@@ -1,0 +1,14 @@
+{
+	"name": "Bordr",
+	"short_name": "Bordr",
+	"description": "Add perfect borders to your photos before posting.",
+	"start_url": "./",
+	"scope": "./",
+	"display": "standalone",
+	"orientation": "any",
+	"background_color": "#0a0a0f",
+	"theme_color": "#4c1d95",
+	"icons": [
+		{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+	]
+}
